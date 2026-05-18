@@ -19,11 +19,14 @@ const getTemplate = () => {
 
 export const createCardElement = (
   data, currentUserId,
-  { onPreviewPicture, onLikeIcon, onDeleteCard }
+  { onPreviewPicture, onLikeIcon, onDeleteCard, onInfoClick }
 ) => {
   const cardElement = getTemplate();
   const likeButton = cardElement.querySelector(".card__like-button");
   const deleteButton = cardElement.querySelector(".card__control-button_type_delete");
+  const infoButton = cardElement.querySelector(
+    ".card__control-button_type_info"
+  );
   if (data.owner && data.owner._id !== currentUserId) {
     deleteButton.remove();
   }
@@ -68,13 +71,13 @@ if (onLikeIcon) {
   });
 }
 
-  if (onDeleteCard) {
-    deleteButton.addEventListener("click", () => {
-      deleteCardApi(data._id)
-        .then(() => {
-          cardElement.remove();
-        })
-        .catch((err) => console.log(err));
+  if (onDeleteCard && deleteButton) {
+  deleteButton.addEventListener("click", () => {
+    deleteCardApi(data._id)
+      .then(() => {
+        cardElement.remove();
+      })
+      .catch((err) => console.log(err));
     });
   }
 
@@ -82,5 +85,12 @@ if (onLikeIcon) {
     cardImage.addEventListener("click", () => onPreviewPicture({name: data.name, link: data.link}));
   }
 
+  if (onInfoClick && infoButton) {
+    infoButton.addEventListener("click", () => {
+      onInfoClick(data);
+    });
+  }
+  
   return cardElement;
 };
+

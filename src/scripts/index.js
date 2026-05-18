@@ -52,6 +52,21 @@ const avatarForm = avatarFormModalWindow.querySelector(".popup__form");
 const avatarInput = avatarForm.querySelector(".popup__input");
 const logo = document.querySelector(".header__logo");
 
+const infoPopup =
+  document.querySelector(".popup_type_info");
+
+const infoPopupTitle =
+  infoPopup.querySelector(".popup__title");
+
+const infoPopupDefinition =
+  infoPopup.querySelector(".popup__info");
+
+const infoPopupText =
+  infoPopup.querySelector(".popup__text");
+
+const infoPopupList =
+  infoPopup.querySelector(".popup__list");
+
 const usersStatsModalWindow =
   document.querySelector(".popup_type_info");
 
@@ -157,6 +172,7 @@ const handleCardFormSubmit = (evt) => {
           onPreviewPicture: handlePreviewPicture,
           onLikeIcon: likeCard,
           onDeleteCard: deleteCard,
+          onInfoClick: handleInfoClick,
         })
       );
 
@@ -171,92 +187,62 @@ const handleCardFormSubmit = (evt) => {
     });
 };
 
-const handleLogoClick = () => {
-  getCardList()
-    .then((cards) => {
-      usersStatsModalInfoList.innerHTML = "";
-      usersStatsModalUserList.innerHTML = "";
+const handleInfoClick = (cardData) => {
+  infoPopupDefinition.innerHTML = "";
+  infoPopupList.innerHTML = "";
 
-      const usersStats = {};
+  infoPopupTitle.textContent =
+    "Статистика карточки";
 
-      cards.forEach((card) => {
-        const userName = card.owner.name;
+  infoPopupText.textContent =
+    "Пользователи, поставившие лайк:";
 
-        if (!usersStats[userName]) {
-          usersStats[userName] = 1;
-        } else {
-          usersStats[userName] += 1;
-        }
-      });
+  infoPopupDefinition.append(
+    createInfoString(
+      "Описание:",
+      cardData.name
+    )
+  );
 
-      const maxCards = Math.max(
-        ...Object.values(usersStats)
+  infoPopupDefinition.append(
+    createInfoString(
+      "Дата создания:",
+      formatDate(
+        new Date(cardData.createdAt)
+      )
+    )
+  );
+
+  infoPopupDefinition.append(
+    createInfoString(
+      "Владелец:",
+      cardData.owner.name
+    )
+  );
+
+  infoPopupDefinition.append(
+    createInfoString(
+      "Количество лайков:",
+      cardData.likes.length
+    )
+  );
+
+  if (cardData.likes.length === 0) {
+    infoPopupList.append(
+      createUserPreview(
+        "Лайков пока нет"
+      )
+    );
+  } else {
+    cardData.likes.forEach((user) => {
+      infoPopupList.append(
+        createUserPreview(user.name)
       );
-
-      usersStatsModalTitle.textContent =
-        "Статистика пользователей";
-
-      usersStatsModalText.textContent =
-        "Все пользователи:";
-
-      usersStatsModalInfoList.append(
-        createInfoString(
-          "Всего карточек:",
-          cards.length
-        )
-      );
-
-      usersStatsModalInfoList.append(
-        createInfoString(
-          "Первая создана:",
-          formatDate(
-            new Date(
-              cards[cards.length - 1].createdAt
-            )
-          )
-        )
-      );
-
-      usersStatsModalInfoList.append(
-        createInfoString(
-          "Последняя создана:",
-          formatDate(
-            new Date(cards[0].createdAt)
-          )
-        )
-      );
-
-      usersStatsModalInfoList.append(
-        createInfoString(
-          "Всего пользователей:",
-          Object.keys(usersStats).length
-        )
-      );
-
-      usersStatsModalInfoList.append(
-        createInfoString(
-          "Максимум карточек от одного:",
-          maxCards
-        )
-      );
-
-      Object.entries(usersStats).forEach(
-        ([name]) => {
-          usersStatsModalUserList.append(
-            createUserPreview(name)
-          );
-         }
-      );
-
-      openModalWindow(
-        usersStatsModalWindow
-      );
-    })
-    .catch((err) => {
-      console.log(err);
     });
-};
+  }
 
+  openModalWindow(infoPopup);
+};
 
 const formatDate = (date) =>
   date.toLocaleDateString("ru-RU", {
@@ -301,10 +287,7 @@ const createUserPreview = (name) => {
 profileForm.addEventListener("submit", handleProfileFormSubmit);
 cardForm.addEventListener("submit", handleCardFormSubmit);
 avatarForm.addEventListener("submit", handleAvatarFromSubmit);
-logo.addEventListener(
-  "click",
-  handleLogoClick
-);
+
 
 openProfileFormButton.addEventListener("click", () => {
   profileTitleInput.value = profileTitle.textContent;
@@ -355,6 +338,7 @@ Promise.all([getCardList(), getUserInfo()])
           onPreviewPicture: handlePreviewPicture,
           onLikeIcon: likeCard,
           onDeleteCard: deleteCard,
+          onInfoClick: handleInfoClick,
         }),
       );
     });
@@ -362,4 +346,3 @@ Promise.all([getCardList(), getUserInfo()])
   .catch((err) => {
     console.log(err);
   });
-
