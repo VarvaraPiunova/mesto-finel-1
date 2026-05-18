@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 import { resolve } from 'path';
 
 export default defineConfig({
-  base: '/mesto-finel-2/',
+  base: '/mesto-finel-1/',
   root: '.', // корень проекта
   build: {
     outDir: 'dist',     // папка для сборки
